@@ -25,7 +25,7 @@ export class MatchesController {
   @HttpCode(HttpStatus.CREATED)
   async createMatch(@Body() data: MatchDto): Promise<IMatch> {
     const newMatch = await this.matchService.createMatch(data);
-    return newMatch.populate('homeTeamData').toObject({ transform: toMatch });
+    return newMatch.toObject({ transform: toMatch });
   }
 
   @Get()

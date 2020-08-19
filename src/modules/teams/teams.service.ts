@@ -8,7 +8,6 @@ import { InjectModel } from '@nestjs/mongoose';
 import { TeamDto } from './dto/team.dto';
 import { ITeam } from './interfaces/team.interface';
 import { Model } from 'mongoose';
-import { toTeam } from './transform/team.transform';
 import { TeamQueryDto } from './dto/team-query.dto';
 import * as Utils from '../../utils';
 
@@ -24,28 +23,25 @@ export class TeamsService {
       );
     }
     const newTeam = new this.teamModel({ ...data, id: Utils.generateId() });
-    const savedTeam = await newTeam.save();
-    return savedTeam.toObject({ transform: toTeam });
+    return await newTeam.save();
   }
 
   public async getTeams(query?: TeamQueryDto): Promise<ITeam[]> {
-    const teams = await this.teamModel
+    return await this.teamModel
       .find({ name: { $regex: query?.team || '', $options: '$i' } })
       .exec();
-    return teams.map(t => t.toObject({ transform: toTeam }));
   }
 
   public async getTeam(id: string): Promise<ITeam> {
-    const team = await this.findTeam(id);
-    return team.toObject({ transform: toTeam });
+    return await this.findTeam(id);
   }
 
   public async updateTeam(id: string, data: TeamDto): Promise<ITeam> {
-    const result = await this.teamModel.findOneAndUpdate({ id }, data).exec();
-    if (!result) {
+    const result = await this.teamModel.updateOne({ id }, data).exec();
+    if (result.n === 0) {
       throw new NotFoundException("Can't find team");
     }
-    return result.toObject({ transform: toTeam });
+    return await this.findTeam(id);
   }
 
   public async setTeams(data: TeamDto[]): Promise<HttpStatus> {
@@ -67,7 +63,7 @@ export class TeamsService {
   public async deleteTeam(id: string): Promise<void> {
     const result = await this.teamModel.deleteOne({ id: id }).exec();
     if (result.n === 0) {
-      throw new NotFoundException('Could not find team.');
+      throw new NotFoundException("Can't find team");
     }
   }
 

@@ -1,12 +1,12 @@
 import { HttpModule, Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { IEnvironmentVariables } from '../../env.interface';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { TeamsModule, TeamsService } from '../teams';
 import { MatchesModule, MatchesService } from '../matches';
 import { StatisticModule } from '../statistic';
-import { IEnvironmentVariables } from '../../env.interface';
 
 @Module({
   imports: [

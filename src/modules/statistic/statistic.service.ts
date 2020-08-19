@@ -20,7 +20,7 @@ export class StatisticService {
       return this.calculateTeamStatistic(t, matches);
     });
     return statistic
-      .sort((a, b) => b.points - a.points)
+      .sort(this.sortByPointsAndGoals)
       .map((s, idx) => ({ ...s, position: idx + 1 }));
   }
 
@@ -47,6 +47,12 @@ export class StatisticService {
       );
     });
     return teamStat;
+  }
+
+  private sortByPointsAndGoals(a: IStatistic, b: IStatistic): number {
+    const aGoalsDiff = a.goalsScored - a.goalsConceded;
+    const bGoalsDiff = b.goalsScored - b.goalsConceded;
+    return b.points - a.points || bGoalsDiff - aGoalsDiff;
   }
 
   private getTeamPoints(

@@ -15,6 +15,7 @@ import { TeamDto } from './dto/team.dto';
 import { ITeam } from './interfaces/team.interface';
 import { TeamQueryDto } from './dto/team-query.dto';
 import { routes } from '../../constants';
+import { toTeam } from './transform/team.transform';
 
 @Controller(routes.teams)
 export class TeamsController {
@@ -23,22 +24,26 @@ export class TeamsController {
   @Post()
   @HttpCode(HttpStatus.CREATED)
   async createTeam(@Body() data: TeamDto): Promise<ITeam> {
-    return await this.teamsService.createTeam(data);
+    const newTeam = await this.teamsService.createTeam(data);
+    return newTeam.toObject({ transform: toTeam });
   }
 
   @Get()
   async getTeams(@Query() query: TeamQueryDto): Promise<ITeam[]> {
-    return await this.teamsService.getTeams(query);
+    const teams = await this.teamsService.getTeams(query);
+    return teams.map(t => t.toObject({ transform: toTeam }));
   }
 
   @Get(':id')
   async getTeam(@Param('id') id: string): Promise<ITeam> {
-    return await this.teamsService.getTeam(id);
+    const team = await this.teamsService.getTeam(id);
+    return team.toObject({ transform: toTeam });
   }
 
   @Put(':id')
   async updateTeam(@Param('id') id: string, @Body() data: TeamDto) {
-    return this.teamsService.updateTeam(id, data);
+    const updatedTeam = await this.teamsService.updateTeam(id, data);
+    return updatedTeam.toObject({ transform: toTeam });
   }
 
   @Delete(':id')

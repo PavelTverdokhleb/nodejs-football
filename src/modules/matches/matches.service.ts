@@ -6,18 +6,18 @@ import {
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { toMatch } from './transform/match.transform';
 import { IMatch } from './interfaces/match.interface';
 import { MatchDto } from './dto/match.dto';
 import { MatchQueryDto } from './dto/match-query.dto';
 import * as Utils from '../../utils';
 import { TeamsService } from '../teams';
+import { MatchSchema } from './schema/match.schema';
 
 @Injectable()
 export class MatchesService {
   constructor(
     private teamsService: TeamsService,
-    @InjectModel('Match') private readonly matchModel: Model<IMatch>,
+    @InjectModel(MatchSchema.name) private readonly matchModel: Model<IMatch>,
   ) {}
 
   public async createMatch(data: MatchDto): Promise<IMatch> {

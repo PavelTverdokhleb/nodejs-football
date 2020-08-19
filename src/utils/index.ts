@@ -5,7 +5,7 @@ export function generateId(): string {
 }
 
 export function checkAndSwap<T>(
-  arr: boolean[],
+  arr: [boolean, boolean],
   obj: T,
   func: (obj: T, arg1: number, arg2: number) => T,
   arg1: number,
