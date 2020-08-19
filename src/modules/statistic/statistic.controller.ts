@@ -1,8 +1,9 @@
 import { Controller, Get, Param } from '@nestjs/common';
 import { StatisticService } from './statistic.service';
 import { IStatistic } from './interfaces/statistic.interface';
+import { routes } from '../../constants';
 
-@Controller('statistic')
+@Controller(routes.statistic)
 export class StatisticController {
   constructor(public readonly statisticService: StatisticService) {}
 
@@ -11,8 +12,8 @@ export class StatisticController {
     return this.statisticService.getStatistic();
   }
 
-  @Get(':team')
-  async getTeamStatistic(@Param('team') team: string): Promise<IStatistic> {
-    return this.statisticService.getTeamStatistic(team);
+  @Get(':id')
+  async getTeamStatistic(@Param('id') id: string): Promise<IStatistic> {
+    return this.statisticService.getTeamStatistic(id);
   }
 }

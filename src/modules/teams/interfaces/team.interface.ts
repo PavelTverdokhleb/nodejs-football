@@ -6,7 +6,8 @@ export const TeamSchema = new mongoose.Schema({
 });
 
 export interface ITeam extends mongoose.Document {
-
   id: string;
   name: string;
 }
+
+export type Team = Pick<ITeam, 'id' | 'name'>;

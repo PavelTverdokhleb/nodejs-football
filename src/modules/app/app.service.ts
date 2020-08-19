@@ -1,7 +1,7 @@
 import { HttpService, HttpStatus, Injectable } from '@nestjs/common';
 import { map } from 'rxjs/operators';
-import { TeamsService } from '../teams/teams.service';
-import { MatchesService } from '../matches/matches.service';
+import { TeamsService } from '../teams';
+import { MatchesService } from '../matches';
 import { ConfigService } from '@nestjs/config';
 import * as Utils from '../../utils';
 
@@ -20,7 +20,7 @@ export class AppService {
       .pipe(map(response => response.data))
       .toPromise();
     let teams = [];
-    const matches = await data.map(
+    const matches = data.map(
       ({ HomeTeam, AwayTeam, Date, FTHG, FTAG }) => {
         if (!teams.find(t => t.name === HomeTeam)) {
           teams.push({
@@ -36,8 +36,8 @@ export class AppService {
         }
         return {
           id: Utils.generateId(),
-          homeTeam: HomeTeam,
-          awayTeam: AwayTeam,
+          homeTeam: teams.find(t => t.name === HomeTeam),
+          awayTeam: teams.find(t => t.name === AwayTeam),
           date: Date,
           homeTeamGoals: FTHG,
           awayTeamGoals: FTAG,

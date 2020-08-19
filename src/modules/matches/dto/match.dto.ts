@@ -1,27 +1,46 @@
-import { IsNotEmpty, IsString, IsNumber } from 'class-validator';
+import { IsNotEmpty, IsString, IsObject, IsNumber } from 'class-validator';
+import { Team } from '../../teams';
 
 export class MatchDto {
-    @IsNotEmpty()
-    @IsString()
-    id: string;
+  @IsNotEmpty()
+  @IsObject()
+  homeTeam: Team;
 
-    @IsNotEmpty()
-    @IsString()
-    homeTeam: string;
+  @IsNotEmpty()
+  @IsObject()
+  awayTeam: Team;
 
-    @IsNotEmpty()
-    @IsString()
-    awayTeam: string;
+  @IsNotEmpty()
+  @IsString()
+  date: string;
 
-    @IsNotEmpty()
-    @IsString()
-    date: string;
+  @IsNotEmpty()
+  @IsNumber()
+  homeTeamGoals: number;
 
-    @IsNotEmpty()
-    @IsNumber()
-    homeTeamGoals: number;
+  @IsNotEmpty()
+  @IsNumber()
+  awayTeamGoals: number;
+}
 
-    @IsNotEmpty()
-    @IsNumber()
-    awayTeamGoals: number;
+export class CreateMatchDto {
+  @IsNotEmpty()
+  @IsString()
+  homeTeam: string;
+
+  @IsNotEmpty()
+  @IsString()
+  awayTeam: string;
+
+  @IsNotEmpty()
+  @IsString()
+  date: string;
+
+  @IsNotEmpty()
+  @IsNumber()
+  homeTeamGoals: number;
+
+  @IsNotEmpty()
+  @IsNumber()
+  awayTeamGoals: number;
 }

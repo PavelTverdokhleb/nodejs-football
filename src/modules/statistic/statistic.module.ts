@@ -1,13 +1,13 @@
 import { Module } from '@nestjs/common';
 import { StatisticService } from './statistic.service';
 import { StatisticController } from './statistic.controller';
-import { MatchesService } from '../matches/matches.service';
-import { MatchesModule } from '../matches/matches.module';
+import { MatchesService, MatchesModule } from '../matches';
+import { TeamsModule, TeamsService } from '../teams';
 
 @Module({
-  imports: [MatchesModule],
+  imports: [MatchesModule, TeamsModule],
   controllers: [StatisticController],
-  providers: [StatisticService, MatchesService],
+  providers: [StatisticService, MatchesService, TeamsService],
   exports: [],
 })
 export class StatisticModule {}

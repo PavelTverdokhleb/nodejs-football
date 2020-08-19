@@ -1,5 +1,5 @@
 export const routes = {
-  auth: 'auth',
-  users: 'users',
-  movies: 'movies',
+  matches: 'matches',
+  teams: 'teams',
+  statistic: 'statistic',
 };
