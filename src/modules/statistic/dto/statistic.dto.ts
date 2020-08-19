@@ -1,6 +1,9 @@
 import { IStatistic } from '..';
 import { Team } from '../../teams';
 
+/**
+ * Default statistic object.
+ */
 export const defaultStatisticArgs: IStatistic = {
   team: {
     id: '',

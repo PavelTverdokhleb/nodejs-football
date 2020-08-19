@@ -5,9 +5,12 @@ import { AppService } from './app.service';
 export class AppController {
   constructor(public readonly appService: AppService) {}
 
+  /**
+   * Parse data from uri and inserts entities in db.
+   */
   @Post('/seed')
   @HttpCode(HttpStatus.CREATED)
-  async seedDataBase(): Promise<HttpStatus> {
+  async seedData(): Promise<HttpStatus> {
     return await this.appService.seedData();
   }
 }

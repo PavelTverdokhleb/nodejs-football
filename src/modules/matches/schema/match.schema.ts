@@ -1,5 +1,8 @@
 import * as mongoose from 'mongoose';
 
+/**
+ * Match schema definition.
+ */
 const MatchBase = new mongoose.Schema(
   {
     id: { type: String, required: true, unique: true },
@@ -12,6 +15,9 @@ const MatchBase = new mongoose.Schema(
   { toObject: { virtuals: true } },
 );
 
+/**
+ * Populate home team entity by id.
+ */
 MatchBase.virtual('homeTeamData', {
   ref: 'Team',
   localField: 'homeTeam',
@@ -19,6 +25,9 @@ MatchBase.virtual('homeTeamData', {
   justOne: true,
 });
 
+/**
+ * Populate away team entity by id.
+ */
 MatchBase.virtual('awayTeamData', {
   ref: 'Team',
   localField: 'awayTeam',
@@ -26,6 +35,9 @@ MatchBase.virtual('awayTeamData', {
   justOne: true,
 });
 
+/**
+ * Define populate fields on methods.
+ */
 MatchBase.pre('init', function() {
   this.populate('homeTeamData');
   this.populate('awayTeamData');

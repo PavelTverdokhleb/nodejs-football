@@ -1,6 +1,9 @@
 import { IMatch } from '../interfaces/match.interface';
 import { toTeam } from '../../teams/transform/team.transform';
 
+/**
+ * Transform DB match entity.
+ */
 export const toMatch = (match: IMatch) => ({
   id: match.id,
   homeTeam: match.homeTeamData?.toObject({ transform: toTeam }),

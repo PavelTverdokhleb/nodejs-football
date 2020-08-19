@@ -3,7 +3,7 @@ import { map } from 'rxjs/operators';
 import { TeamsService } from '../teams';
 import { MatchesService } from '../matches';
 import { ConfigService } from '@nestjs/config';
-import * as Utils from '../../utils';
+import { Utils } from '../../utils';
 
 @Injectable()
 export class AppService {

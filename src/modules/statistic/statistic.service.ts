@@ -4,7 +4,7 @@ import { IStatistic } from './interfaces/statistic.interface';
 import { ITeam, TeamsService } from '../teams';
 import { MatchesService } from '../matches';
 import { StatisticDto } from './dto/statistic.dto';
-import * as Utils from '../../utils';
+import { Utils } from '../../utils';
 
 @Injectable()
 export class StatisticService {
@@ -13,6 +13,9 @@ export class StatisticService {
     private matchesService: MatchesService,
   ) {}
 
+  /**
+   * Get teams statistic.
+   */
   public async getStatistic(): Promise<IStatistic[]> {
     const teams = await this.teamsService.getTeams();
     const matches = await this.matchesService.getMatches();
@@ -24,12 +27,23 @@ export class StatisticService {
       .map((s, idx) => ({ ...s, position: idx + 1 }));
   }
 
+  /**
+   * Get team statistic.
+   */
   public async getTeamStatistic(id: string): Promise<IStatistic> {
     const team = await this.teamsService.findTeam(id);
-    const matches = await this.matchesService.getMatches();
+    const matches = await this.matchesService.getMatches({
+      teams: id,
+      date: undefined,
+    });
     return this.calculateTeamStatistic(team, matches);
   }
 
+  /**
+   * Calculate team statistic based on matches
+   * @team team entity;
+   * @matches array of matches;
+   */
   private calculateTeamStatistic(team: ITeam, matches: IMatch[]): IStatistic {
     let teamStat = new StatisticDto({
       team: {
@@ -49,12 +63,23 @@ export class StatisticService {
     return teamStat;
   }
 
+  /**
+   * Sort teams by points and goals difference.
+   * @a team statistic;
+   * @b team statistic;
+   */
   private sortByPointsAndGoals(a: IStatistic, b: IStatistic): number {
     const aGoalsDiff = a.goalsScored - a.goalsConceded;
     const bGoalsDiff = b.goalsScored - b.goalsConceded;
     return b.points - a.points || bGoalsDiff - aGoalsDiff;
   }
 
+  /**
+   * Update team statistic based on match.
+   * @stat team statistic;
+   * @homeGoals goals scored by home team;
+   * @awayGoals goals scored by away team;
+   */
   private getTeamPoints(
     stat: IStatistic,
     homeGoals: number,
@@ -75,6 +100,11 @@ export class StatisticService {
     };
   }
 
+  /**
+   * Calculate team points and match result.
+   * @homeGoals goals scored by home team;
+   * @awayGoals goals scored by away team;
+   */
   private static calculatePoints(
     homeGoals: number,
     awayGoals: number,
