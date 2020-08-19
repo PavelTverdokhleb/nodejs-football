@@ -1,22 +1,21 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { IMatch } from '../matches/interfaces/match.interface';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
 import { IStatistic } from './interfaces/statistic.interface';
 import { ITeam, TeamsService } from '../teams';
+import { MatchesService } from '../matches';
 import { StatisticDto } from './dto/statistic.dto';
+import * as Utils from '../../utils';
 
 @Injectable()
 export class StatisticService {
   constructor(
     private teamsService: TeamsService,
-    @InjectModel('Match') private readonly matchModel: Model<IMatch>,
-    @InjectModel('Team') private readonly teamModel: Model<ITeam>,
+    private matchesService: MatchesService,
   ) {}
 
   public async getStatistic(): Promise<IStatistic[]> {
-    const teams = await this.teamModel.find().exec();
-    const matches = await this.matchModel.find().exec();
+    const teams = await this.teamsService.getTeams();
+    const matches = await this.matchesService.getMatches();
     const statistic = teams.map(t => {
       return this.calculateTeamStatistic(t, matches);
     });
@@ -27,7 +26,7 @@ export class StatisticService {
 
   public async getTeamStatistic(id: string): Promise<IStatistic> {
     const team = await this.teamsService.findTeam(id);
-    const matches = await this.matchModel.find().exec();
+    const matches = await this.matchesService.getMatches();
     return this.calculateTeamStatistic(team, matches);
   }
 
@@ -39,19 +38,13 @@ export class StatisticService {
       },
     });
     matches.forEach(m => {
-      if (team.id === m.homeTeam.id) {
-        teamStat = this.getTeamPoints(
-          teamStat,
-          m.homeTeamGoals,
-          m.awayTeamGoals,
-        );
-      } else if (team.id === m.awayTeam.id) {
-        teamStat = this.getTeamPoints(
-          teamStat,
-          m.awayTeamGoals,
-          m.homeTeamGoals,
-        );
-      }
+      teamStat = Utils.checkAndSwap(
+        [team.id === m.homeTeam, team.id === m.awayTeam],
+        teamStat,
+        this.getTeamPoints,
+        m.homeTeamGoals,
+        m.awayTeamGoals,
+      );
     });
     return teamStat;
   }

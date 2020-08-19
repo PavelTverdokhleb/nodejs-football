@@ -28,9 +28,9 @@ export class TeamsService {
     return savedTeam.toObject({ transform: toTeam });
   }
 
-  public async getTeams(query: TeamQueryDto): Promise<ITeam[]> {
+  public async getTeams(query?: TeamQueryDto): Promise<ITeam[]> {
     const teams = await this.teamModel
-      .find({ name: { $regex: query.team || '', $options: '$i' } })
+      .find({ name: { $regex: query?.team || '', $options: '$i' } })
       .exec();
     return teams.map(t => t.toObject({ transform: toTeam }));
   }
@@ -38,6 +38,14 @@ export class TeamsService {
   public async getTeam(id: string): Promise<ITeam> {
     const team = await this.findTeam(id);
     return team.toObject({ transform: toTeam });
+  }
+
+  public async updateTeam(id: string, data: TeamDto): Promise<ITeam> {
+    const result = await this.teamModel.findOneAndUpdate({ id }, data).exec();
+    if (!result) {
+      throw new NotFoundException("Can't find team");
+    }
+    return result.toObject({ transform: toTeam });
   }
 
   public async setTeams(data: TeamDto[]): Promise<HttpStatus> {
@@ -63,9 +71,12 @@ export class TeamsService {
     }
   }
 
-  public async findTeam(id: string): Promise<ITeam> {
+  public async findTeam(id: string, check?: boolean): Promise<ITeam> {
     const team = await this.teamModel.findOne({ id }).exec();
     if (!team) {
+      if (check) {
+        throw new BadRequestException(`Team with id - ${id} doesn't exist`);
+      }
       throw new NotFoundException("Can't find team");
     }
     return team;

@@ -8,7 +8,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { toMatch } from './transform/match.transform';
 import { IMatch } from './interfaces/match.interface';
-import { CreateMatchDto, MatchDto } from './dto/match.dto';
+import { MatchDto } from './dto/match.dto';
 import { MatchQueryDto } from './dto/match-query.dto';
 import * as Utils from '../../utils';
 import { TeamsService } from '../teams';
@@ -20,33 +20,31 @@ export class MatchesService {
     @InjectModel('Match') private readonly matchModel: Model<IMatch>,
   ) {}
 
-  public async createMatch(data: CreateMatchDto): Promise<IMatch> {
-    const homeTeam = await this.teamsService.findTeam(data.homeTeam);
-    const awayTeam = await this.teamsService.findTeam(data.awayTeam);
+  public async createMatch(data: MatchDto): Promise<IMatch> {
+    await this.teamsService.findTeam(data.homeTeam, true);
+    await this.teamsService.findTeam(data.awayTeam, true);
+    const newId = Utils.generateId();
     const newMatch = new this.matchModel({
       ...data,
-      homeTeam,
-      awayTeam,
-      id: Utils.generateId(),
+      id: newId,
     });
-    const savedMatch = await newMatch.save();
-    return savedMatch.toObject({ transform: toMatch });
+    await newMatch.save();
+    return await this.findMatch(newId);
   }
 
-  public async getMatches(query: MatchQueryDto): Promise<IMatch[]> {
-    const filterParams = this.getFilters(query);
+  public async getMatches(query?: MatchQueryDto): Promise<IMatch[]> {
+    const filterParams = MatchesService.getFilters(query);
     let filter;
     if (filterParams.length > 0) {
       filter = {
         $and: filterParams,
       };
     }
-    const matches = await this.matchModel
-      .find(filter)
-      .populate('homeTeam')
-      .populate('awayTeam')
-      .exec();
-    return matches.map(m => m.toObject({ transform: toMatch }));
+    return this.matchModel.find(filter).exec();
+  }
+
+  public async getMatch(id: string): Promise<IMatch> {
+    return await this.findMatch(id);
   }
 
   public async setMatches(data: MatchDto[]): Promise<HttpStatus> {
@@ -54,8 +52,8 @@ export class MatchesService {
       const matchesUpdate = data.map(m => ({
         updateOne: {
           filter: {
-            'homeTeam.id': m.homeTeam.id,
-            'awayTeam.id': m.awayTeam.id,
+            homeTeam: m.homeTeam,
+            awayTeam: m.awayTeam,
             date: m.date,
           },
           update: { $set: m },
@@ -64,10 +62,17 @@ export class MatchesService {
       }));
       await this.matchModel.bulkWrite(matchesUpdate);
     } catch (e) {
-      console.log(e);
       throw new BadRequestException("Can't set matches");
     }
     return HttpStatus.OK;
+  }
+
+  public async updateMatch(id: string, data: MatchDto): Promise<IMatch> {
+    const result = await this.matchModel.updateOne({ id }, data).exec();
+    if (result.n === 0) {
+      throw new NotFoundException("Can't find match");
+    }
+    return await this.findMatch(id);
   }
 
   public async deleteMatch(id: string): Promise<void> {
@@ -77,9 +82,17 @@ export class MatchesService {
     }
   }
 
-  private getFilters(query: MatchQueryDto): any {
-    const teams = query.teams && query.teams.split(',');
-    const date = query.date;
+  public async findMatch(id: string): Promise<IMatch> {
+    const match = await this.matchModel.findOne({ id }).exec();
+    if (!match) {
+      throw new NotFoundException("Can't find match");
+    }
+    return match;
+  }
+
+  private static getFilters(query?: MatchQueryDto): any {
+    const teams = query?.teams?.split(',');
+    const date = query?.date;
     const filters = [];
     if (teams) {
       filters.push({

@@ -2,6 +2,7 @@ import {
   Controller,
   Get,
   Post,
+  Put,
   Body,
   Query,
   Delete,
@@ -33,6 +34,11 @@ export class TeamsController {
   @Get(':id')
   async getTeam(@Param('id') id: string): Promise<ITeam> {
     return await this.teamsService.getTeam(id);
+  }
+
+  @Put(':id')
+  async updateTeam(@Param('id') id: string, @Body() data: TeamDto) {
+    return this.teamsService.updateTeam(id, data);
   }
 
   @Delete(':id')

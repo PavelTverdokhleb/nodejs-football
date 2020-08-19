@@ -36,8 +36,8 @@ export class AppService {
         }
         return {
           id: Utils.generateId(),
-          homeTeam: teams.find(t => t.name === HomeTeam),
-          awayTeam: teams.find(t => t.name === AwayTeam),
+          homeTeam: teams.find(t => t.name === HomeTeam).id,
+          awayTeam: teams.find(t => t.name === AwayTeam).id,
           date: Date,
           homeTeamGoals: FTHG,
           awayTeamGoals: FTAG,
