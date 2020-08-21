@@ -6,8 +6,8 @@ import { Team } from '../../teams';
  */
 export const defaultStatisticArgs: IStatistic = {
   team: {
-    id: '',
     name: '',
+    division: ''
   },
   points: 0,
   win: 0,
@@ -15,6 +15,7 @@ export const defaultStatisticArgs: IStatistic = {
   lose: 0,
   goalsScored: 0,
   goalsConceded: 0,
+  matchesCount: 0
 };
 
 export class StatisticDto {
@@ -25,6 +26,7 @@ export class StatisticDto {
   public lose: number;
   public goalsConceded: number;
   public goalsScored: number;
+  public matchesCount: number;
 
   public constructor(args) {
     const data = { ...defaultStatisticArgs, ...args };

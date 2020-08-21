@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsString, IsNumber } from 'class-validator';
+import { IsNotEmpty, IsString, IsDateString, IsNumber } from 'class-validator';
 
 /**
  * DTO for match entity.
@@ -22,7 +22,7 @@ export class MatchDto {
    * Date of the match.
    */
   @IsNotEmpty()
-  @IsString()
+  @IsDateString()
   date: string;
 
   /**

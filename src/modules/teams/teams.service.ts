@@ -1,6 +1,8 @@
 import {
   BadRequestException,
+  forwardRef,
   HttpStatus,
+  Inject,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -12,11 +14,14 @@ import { TeamQueryDto } from './dto/team-query.dto';
 import { Utils } from '../../utils';
 import { StringResource } from '../../resource';
 import { TeamSchema } from './schema/team.schema';
+import { MatchesService } from '../matches';
 
 @Injectable()
 export class TeamsService {
   constructor(
     @InjectModel(TeamSchema.name) private readonly teamModel: Model<ITeam>,
+    @Inject(forwardRef(() => MatchesService))
+    private matchesService: MatchesService,
   ) {}
 
   /**
@@ -30,7 +35,7 @@ export class TeamsService {
         Utils.format(StringResource.TeamWithNameExist, data.name),
       );
     }
-    const newTeam = new this.teamModel({ ...data, id: Utils.generateId() });
+    const newTeam = new this.teamModel(data);
     return await newTeam.save();
   }
 
@@ -49,7 +54,7 @@ export class TeamsService {
    * @id id of the team;
    */
   public async getTeam(id: string): Promise<ITeam> {
-    return await this.findTeam(id);
+    return await this.findTeam('_id', id);
   }
 
   /**
@@ -58,11 +63,11 @@ export class TeamsService {
    * @data team dto;
    */
   public async updateTeam(id: string, data: TeamDto): Promise<ITeam> {
-    const result = await this.teamModel.updateOne({ id }, data).exec();
+    const result = await this.teamModel.updateOne({ _id: id }, data).exec();
     if (result.n === 0) {
-      throw new NotFoundException(StringResource.TeamNotFound);
+      throw new NotFoundException(Utils.format(StringResource.TeamNotExist, id));
     }
-    return await this.findTeam(id);
+    return await this.findTeam('_id', id);
   }
 
   /**
@@ -90,10 +95,12 @@ export class TeamsService {
    * @id id of the team;
    */
   public async deleteTeam(id: string): Promise<void> {
-    const result = await this.teamModel.deleteOne({ id: id }).exec();
+    const team = await this.findTeam('_id', id, true);
+    const result = await this.teamModel.deleteOne({ _id: id }).exec();
     if (result.n === 0) {
-      throw new NotFoundException(StringResource.TeamNotFound);
+      throw new NotFoundException(Utils.format(StringResource.TeamNotExist, id));
     }
+    await this.matchesService.deleteMatchesByTeam(team.name);
   }
 
   /**
@@ -101,12 +108,16 @@ export class TeamsService {
    * @id id of the team;
    * @check condition to throw bad request exception;
    */
-  public async findTeam(id: string, check?: boolean): Promise<ITeam> {
-    const team = await this.teamModel.findOne({ id }).exec();
+  public async findTeam(
+    field: keyof ITeam,
+    value: string,
+    check?: boolean,
+  ): Promise<ITeam> {
+    const team = await this.teamModel.findOne({ [field]: value }).exec();
     if (!team) {
       if (check) {
         throw new BadRequestException(
-          Utils.format(StringResource.TeamNotExist, id),
+          Utils.format(StringResource.TeamNotExist, value),
         );
       }
       throw new NotFoundException(StringResource.TeamNotFound);

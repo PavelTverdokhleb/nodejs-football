@@ -40,6 +40,11 @@ export interface IStatistic {
   goalsScored: number;
 
   /**
+   * Total matches played by team.
+   */
+  matchesCount: number;
+
+  /**
    * Position in championship table based on points and goals difference.
    */
   position?: number;

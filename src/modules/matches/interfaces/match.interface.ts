@@ -6,11 +6,6 @@ import { ITeam } from '../../teams';
  */
 export interface IMatch extends mongoose.Document {
   /**
-   * Id of the match.
-   */
-  id: string;
-
-  /**
    * Id of the home team.
    */
   homeTeam: string;

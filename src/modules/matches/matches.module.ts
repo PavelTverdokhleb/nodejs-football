@@ -1,23 +1,24 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { MatchSchema } from './schema/match.schema';
 import { MatchesController } from './matches.controller';
 import { MatchesService } from './matches.service';
-import { TeamsModule, TeamsService } from '../teams';
+import { TeamsModule } from '../teams';
 
 @Module({
   imports: [
     MongooseModule.forFeature([
       { name: MatchSchema.name, schema: MatchSchema.schema },
     ]),
-    TeamsModule,
+    forwardRef(() => TeamsModule)
   ],
   controllers: [MatchesController],
-  providers: [MatchesService, TeamsService],
+  providers: [MatchesService],
   exports: [
     MongooseModule.forFeature([
       { name: MatchSchema.name, schema: MatchSchema.schema },
     ]),
+    MatchesService,
   ],
 })
 export class MatchesModule {}

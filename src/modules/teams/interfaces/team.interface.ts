@@ -5,14 +5,14 @@ import * as mongoose from 'mongoose';
  */
 export interface ITeam extends mongoose.Document {
   /**
-   * Id of the team.
-   */
-  id: string;
-
-  /**
    * Name of the team.
    */
   name: string;
+
+  /**
+   * Division of the team.
+   */
+  division: string;
 }
 
-export type Team = Pick<ITeam, 'id' | 'name'>;
+export type Team = Pick<ITeam, 'name' | 'division'>;

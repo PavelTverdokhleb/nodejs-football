@@ -40,11 +40,14 @@ export class TeamsController {
     return team.toObject({ transform: toTeam });
   }
 
-  @Put(':id')
-  async updateTeam(@Param('id') id: string, @Body() data: TeamDto) {
-    const updatedTeam = await this.teamsService.updateTeam(id, data);
-    return updatedTeam.toObject({ transform: toTeam });
-  }
+  /**
+   * Need to resolve conflicts with ids.
+   */
+  // @Put(':id')
+  // async updateTeam(@Param('id') id: string, @Body() data: TeamDto) {
+  //   const updatedTeam = await this.teamsService.updateTeam(id, data);
+  //   return updatedTeam.toObject({ transform: toTeam });
+  // }
 
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)

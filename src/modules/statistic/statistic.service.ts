@@ -5,6 +5,7 @@ import { ITeam, TeamsService } from '../teams';
 import { MatchesService } from '../matches';
 import { StatisticDto } from './dto/statistic.dto';
 import { Utils } from '../../utils';
+import { MatchQueryDto } from '../matches/dto/match-query.dto';
 
 @Injectable()
 export class StatisticService {
@@ -31,11 +32,10 @@ export class StatisticService {
    * Get team statistic.
    */
   public async getTeamStatistic(id: string): Promise<IStatistic> {
-    const team = await this.teamsService.findTeam(id);
+    const team = await this.teamsService.findTeam('_id', id);
     const matches = await this.matchesService.getMatches({
-      teams: id,
-      date: undefined,
-    });
+      teams: team.name,
+    } as MatchQueryDto);
     return this.calculateTeamStatistic(team, matches);
   }
 
@@ -53,7 +53,7 @@ export class StatisticService {
     });
     matches.forEach(m => {
       teamStat = Utils.checkAndSwap(
-        [team.id === m.homeTeam, team.id === m.awayTeam],
+        [team.name === m.homeTeam, team.name === m.awayTeam],
         teamStat,
         this.getTeamPoints,
         m.homeTeamGoals,
@@ -97,6 +97,7 @@ export class StatisticService {
       lose: stat.lose + lose,
       goalsScored: stat.goalsScored + homeGoals,
       goalsConceded: stat.goalsConceded + awayGoals,
+      matchesCount: stat.matchesCount + 1,
     };
   }
 

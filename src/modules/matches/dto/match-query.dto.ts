@@ -1,11 +1,11 @@
-import { IsString, IsOptional } from 'class-validator';
+import { IsString, IsDateString, IsOptional } from 'class-validator';
 
 /**
  * DTO for match queries.
  */
 export class MatchQueryDto {
   /**
-   * Ids of the teams to search by.
+   * Names of the teams to search by.
    */
   @IsOptional()
   @IsString()
@@ -15,6 +15,6 @@ export class MatchQueryDto {
    * Date of the match to search by.
    */
   @IsOptional()
-  @IsString()
+  @IsDateString()
   date: string;
 }

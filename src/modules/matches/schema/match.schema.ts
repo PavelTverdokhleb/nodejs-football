@@ -5,10 +5,9 @@ import * as mongoose from 'mongoose';
  */
 const MatchBase = new mongoose.Schema(
   {
-    id: { type: String, required: true, unique: true },
     homeTeam: { type: String, required: true },
     awayTeam: { type: String, required: true },
-    date: { type: String, required: true },
+    date: { type: Date, required: true },
     homeTeamGoals: { type: Number, required: true },
     awayTeamGoals: { type: Number, required: true },
   },
@@ -21,7 +20,7 @@ const MatchBase = new mongoose.Schema(
 MatchBase.virtual('homeTeamData', {
   ref: 'Team',
   localField: 'homeTeam',
-  foreignField: 'id',
+  foreignField: 'name',
   justOne: true,
 });
 
@@ -31,7 +30,7 @@ MatchBase.virtual('homeTeamData', {
 MatchBase.virtual('awayTeamData', {
   ref: 'Team',
   localField: 'awayTeam',
-  foreignField: 'id',
+  foreignField: 'name',
   justOne: true,
 });
 

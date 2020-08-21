@@ -1,11 +1,9 @@
-import { v4 as uuidv4 } from 'uuid';
-
 export class Utils {
   /**
    * Function that generate id for entity.
    */
-  public static generateId(): string {
-    return uuidv4();
+  public static generateId(keys: Array<string | number>): string {
+    return keys.join('-');
   }
 
   /**

@@ -3,7 +3,6 @@ import { map } from 'rxjs/operators';
 import { TeamsService } from '../teams';
 import { MatchesService } from '../matches';
 import { ConfigService } from '@nestjs/config';
-import { Utils } from '../../utils';
 
 @Injectable()
 export class AppService {
@@ -20,28 +19,32 @@ export class AppService {
       .pipe(map(response => response.data))
       .toPromise();
     const teams = [];
-    const matches = data.map(({ HomeTeam, AwayTeam, Date, FTHG, FTAG }) => {
-      if (!teams.find(t => t.name === HomeTeam)) {
-        teams.push({
-          id: Utils.generateId(),
-          name: HomeTeam,
-        });
-      }
-      if (!teams.find(t => t.name === AwayTeam)) {
-        teams.push({
-          id: Utils.generateId(),
-          name: AwayTeam,
-        });
-      }
-      return {
-        id: Utils.generateId(),
-        homeTeam: teams.find(t => t.name === HomeTeam).id,
-        awayTeam: teams.find(t => t.name === AwayTeam).id,
-        date: Date,
-        homeTeamGoals: FTHG,
-        awayTeamGoals: FTAG,
-      };
-    });
+    const matches = data.map(
+      ({ HomeTeam, AwayTeam, Date, FTHG, FTAG, Div }) => {
+        if (!teams.find(t => t.name === HomeTeam)) {
+          teams.push({
+            name: HomeTeam,
+            division: Div,
+          });
+        }
+        if (!teams.find(t => t.name === AwayTeam)) {
+          teams.push({
+            name: AwayTeam,
+            division: Div,
+          });
+        }
+        const date = Date.split('/')
+          .reverse()
+          .join('-');
+        return {
+          homeTeam: HomeTeam,
+          awayTeam: AwayTeam,
+          date,
+          homeTeamGoals: FTHG,
+          awayTeamGoals: FTAG,
+        };
+      },
+    );
     await this.teamsService.setTeams(teams);
     await this.matchesService.setMatches(matches);
     return HttpStatus.CREATED;

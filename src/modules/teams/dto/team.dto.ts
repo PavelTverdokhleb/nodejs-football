@@ -10,4 +10,11 @@ export class TeamDto {
     @IsNotEmpty()
     @IsString()
     name: string;
+
+    /**
+     * Division where team play.
+     */
+    @IsNotEmpty()
+    @IsString()
+    division: string;
 }
