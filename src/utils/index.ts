@@ -1,12 +1,5 @@
 export class Utils {
   /**
-   * Function that generate id for entity.
-   */
-  public static generateId(keys: Array<string | number>): string {
-    return keys.join('-');
-  }
-
-  /**
    * Function that updates object based on conditions
    * @arr array of conditions;
    * @obj object to update;
@@ -29,17 +22,23 @@ export class Utils {
     return obj;
   }
 
+  /**
+   * Function that formats string with variables
+   * @template string to format;
+   * @args array of variables;
+   */
   public static format(
     template: string,
     ...args: Array<string | number>
   ): string {
-    return (
-      '' +
-      (args || []).reduce(
-        (prev, curr, index) =>
-          ('' + prev).replace(new RegExp(`\\{${index}\\}`, 'g'), '' + curr),
-        template || '',
+    return (args || [])
+      .reduce(
+        (prev, curr, idx) =>
+          prev
+            .toString()
+            .replace(new RegExp(`\\{${idx}\\}`, 'g'), curr.toString()),
+        template,
       )
-    );
+      .toString();
   }
 }
