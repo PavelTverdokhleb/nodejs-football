@@ -16,6 +16,7 @@ import { ITeam } from './interfaces/team.interface';
 import { TeamQueryDto } from './dto/team-query.dto';
 import { routes } from '../../constants';
 import { toTeam } from './transform/team.transform';
+import { ParseObjectIdPipe } from '../../pipes';
 
 @Controller(routes.teams)
 export class TeamsController {
@@ -35,7 +36,7 @@ export class TeamsController {
   }
 
   @Get(':id')
-  async getTeam(@Param('id') id: string): Promise<ITeam> {
+  async getTeam(@Param('id', ParseObjectIdPipe) id: string): Promise<ITeam> {
     const team = await this.teamsService.getTeam(id);
     return team.toObject({ transform: toTeam });
   }
@@ -51,7 +52,7 @@ export class TeamsController {
 
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
-  async deleteMovie(@Param('id') id: string): Promise<void> {
+  async deleteMovie(@Param('id', ParseObjectIdPipe) id: string): Promise<void> {
     await this.teamsService.deleteTeam(id);
   }
 }

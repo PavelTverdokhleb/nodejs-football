@@ -16,6 +16,7 @@ import { MatchesService } from './matches.service';
 import { MatchQueryDto } from './dto/match-query.dto';
 import { routes } from '../../constants';
 import { toMatch } from './transform/match.transform';
+import { ParseObjectIdPipe } from '../../pipes';
 
 @Controller(routes.matches)
 export class MatchesController {
@@ -35,20 +36,23 @@ export class MatchesController {
   }
 
   @Get(':id')
-  async getMatch(@Param('id') id: string): Promise<IMatch> {
+  async getMatch(@Param('id', ParseObjectIdPipe) id: string): Promise<IMatch> {
     const match = await this.matchService.getMatch(id);
     return match.toObject({ transform: toMatch });
   }
 
   @Put(':id')
-  async updateMatch(@Param('id') id: string, @Body() data: MatchDto) {
+  async updateMatch(
+    @Param('id', ParseObjectIdPipe) id: string,
+    @Body() data: MatchDto,
+  ) {
     const updatedMatch = await this.matchService.updateMatch(id, data);
     return updatedMatch.toObject({ transform: toMatch });
   }
 
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
-  async deleteMatch(@Param('id') id: string): Promise<void> {
+  async deleteMatch(@Param('id', ParseObjectIdPipe) id: string): Promise<void> {
     await this.matchService.deleteMatch(id);
   }
 }

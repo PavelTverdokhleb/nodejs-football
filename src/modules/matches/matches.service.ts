@@ -33,7 +33,7 @@ export class MatchesService {
     await this.teamsService.findTeam('name', data.awayTeam, true);
     const newMatch = new this.matchModel(data);
     await newMatch.save();
-    return await this.findMatch(newMatch.id);
+    return this.findMatch(newMatch.id);
   }
 
   /**
@@ -42,7 +42,7 @@ export class MatchesService {
    */
   public async getMatches(query?: MatchQueryDto): Promise<IMatch[]> {
     const filterParams = MatchesService.getFilters(query);
-    let filter;
+    let filter = {};
     if (filterParams.length > 0) {
       filter = {
         $and: filterParams,
@@ -56,14 +56,14 @@ export class MatchesService {
    * @id id of the match;
    */
   public async getMatch(id: string): Promise<IMatch> {
-    return await this.findMatch(id);
+    return this.findMatch(id);
   }
 
   /**
    * Insert or update matches in db parsed from uri.
    * @data array of matches;
    */
-  public async setMatches(data: IMatch[]): Promise<HttpStatus> {
+  public async setMatches(data: MatchDto[]): Promise<HttpStatus> {
     try {
       const matchesUpdate = data.map(m => ({
         updateOne: {
@@ -77,10 +77,10 @@ export class MatchesService {
         },
       }));
       await this.matchModel.bulkWrite(matchesUpdate);
+      return HttpStatus.OK;
     } catch (e) {
       throw new BadRequestException(StringResource.CantSetMatches);
     }
-    return HttpStatus.OK;
   }
 
   /**
@@ -90,12 +90,12 @@ export class MatchesService {
    */
   public async updateMatch(id: string, data: MatchDto): Promise<IMatch> {
     const result = await this.matchModel.updateOne({ _id: id }, data).exec();
-    if (result.n === 0) {
+    if (!result.n) {
       throw new NotFoundException(
         Utils.format(StringResource.MatchNotExist, id),
       );
     }
-    return await this.findMatch(id);
+    return this.findMatch(id);
   }
 
   /**
@@ -104,7 +104,7 @@ export class MatchesService {
    */
   public async deleteMatch(id: string): Promise<void> {
     const result = await this.matchModel.deleteOne({ _id: id }).exec();
-    if (result.n === 0) {
+    if (!result.n) {
       throw new NotFoundException(
         Utils.format(StringResource.MatchNotExist, id),
       );

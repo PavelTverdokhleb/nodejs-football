@@ -36,7 +36,7 @@ export class TeamsService {
       );
     }
     const newTeam = new this.teamModel(data);
-    return await newTeam.save();
+    return newTeam.save();
   }
 
   /**
@@ -54,7 +54,7 @@ export class TeamsService {
    * @id id of the team;
    */
   public async getTeam(id: string): Promise<ITeam> {
-    return await this.findTeam('_id', id);
+    return this.findTeam('_id', id);
   }
 
   /**
@@ -64,10 +64,12 @@ export class TeamsService {
    */
   public async updateTeam(id: string, data: TeamDto): Promise<ITeam> {
     const result = await this.teamModel.updateOne({ _id: id }, data).exec();
-    if (result.n === 0) {
-      throw new NotFoundException(Utils.format(StringResource.TeamNotExist, id));
+    if (!result.n) {
+      throw new NotFoundException(
+        Utils.format(StringResource.TeamNotExist, id),
+      );
     }
-    return await this.findTeam('_id', id);
+    return this.findTeam('_id', id);
   }
 
   /**
@@ -95,12 +97,16 @@ export class TeamsService {
    * @id id of the team;
    */
   public async deleteTeam(id: string): Promise<void> {
-    const team = await this.findTeam('_id', id, true);
-    const result = await this.teamModel.deleteOne({ _id: id }).exec();
-    if (result.n === 0) {
-      throw new NotFoundException(Utils.format(StringResource.TeamNotExist, id));
+    try {
+      const team = await this.findTeam('_id', id, true);
+      const result = await this.teamModel.deleteOne({ _id: id }).exec();
+      if (!result.n) {
+        throw new Error(Utils.format(StringResource.TeamNotExist, id));
+      }
+      await this.matchesService.deleteMatchesByTeam(team.name);
+    } catch (e) {
+      throw new NotFoundException(e.message);
     }
-    await this.matchesService.deleteMatchesByTeam(team.name);
   }
 
   /**
@@ -114,12 +120,11 @@ export class TeamsService {
     check?: boolean,
   ): Promise<ITeam> {
     const team = await this.teamModel.findOne({ [field]: value }).exec();
-    if (!team) {
-      if (check) {
-        throw new BadRequestException(
-          Utils.format(StringResource.TeamNotExist, value),
-        );
-      }
+    if (!team && check) {
+      throw new BadRequestException(
+        Utils.format(StringResource.TeamNotExist, value),
+      );
+    } else if (!team) {
       throw new NotFoundException(StringResource.TeamNotFound);
     }
     return team;

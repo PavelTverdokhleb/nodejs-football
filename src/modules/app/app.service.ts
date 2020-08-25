@@ -1,8 +1,10 @@
 import { HttpService, HttpStatus, Injectable } from '@nestjs/common';
 import { map } from 'rxjs/operators';
-import { TeamsService } from '../teams';
+import { TeamDto, TeamsService } from '../teams';
 import { MatchesService } from '../matches';
 import { ConfigService } from '@nestjs/config';
+import { MatchDto } from '../matches/dto/match.dto';
+import { IBEMatch } from './interfaces/be-match.interface';
 
 @Injectable()
 export class AppService {
@@ -13,13 +15,27 @@ export class AppService {
     private matchesService: MatchesService,
   ) {}
 
+    /**
+     * Gets data from api and insert new entities into db
+     */
   public async seedData(): Promise<HttpStatus> {
     const data = await this.httpService
       .get(this.configService.get<string>('SEED_URI'))
       .pipe(map(response => response.data))
       .toPromise();
-    const teams = [];
-    const matches = data.map(
+    const [matches, teams] = this.parseTeamsAndMatches(data);
+    await this.teamsService.setTeams(teams);
+    await this.matchesService.setMatches(matches);
+    return HttpStatus.CREATED;
+  }
+
+    /**
+     * Parse teams and matches from api response
+     * @data data to parse
+     */
+  private parseTeamsAndMatches(data: IBEMatch[]): [MatchDto[], TeamDto[]] {
+    const teams: TeamDto[] = [];
+    const matches: MatchDto[] = data.map(
       ({ HomeTeam, AwayTeam, Date, FTHG, FTAG, Div }) => {
         if (!teams.find(t => t.name === HomeTeam)) {
           teams.push({
@@ -45,8 +61,6 @@ export class AppService {
         };
       },
     );
-    await this.teamsService.setTeams(teams);
-    await this.matchesService.setMatches(matches);
-    return HttpStatus.CREATED;
+    return [matches, teams];
   }
 }
