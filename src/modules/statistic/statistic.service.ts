@@ -6,6 +6,7 @@ import { MatchesService } from '../matches';
 import { StatisticDto } from './dto/statistic.dto';
 import { Utils } from '../../utils';
 import { MatchQueryDto } from '../matches/dto/match-query.dto';
+import {MATCH} from "../../constants";
 
 @Injectable()
 export class StatisticService {
@@ -111,11 +112,11 @@ export class StatisticService {
     awayGoals: number,
   ): Pick<IStatistic, 'points' | 'win' | 'draw' | 'lose'> {
     if (homeGoals > awayGoals) {
-      return { points: 3, win: 1, draw: 0, lose: 0 };
+      return { points: MATCH.WIN_POINTS, win: 1, draw: 0, lose: 0 };
     } else if (homeGoals < awayGoals) {
-      return { points: 0, win: 0, draw: 0, lose: 1 };
+      return { points: MATCH.LOSE_POINTS, win: 0, draw: 0, lose: 1 };
     } else {
-      return { points: 1, win: 0, draw: 1, lose: 0 };
+      return { points: MATCH.DRAW_POINTS, win: 0, draw: 1, lose: 0 };
     }
   }
 }
