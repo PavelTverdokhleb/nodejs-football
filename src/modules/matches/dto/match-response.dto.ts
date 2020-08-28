@@ -2,9 +2,17 @@ import { IsNotEmpty, IsString, IsDateString, IsNumber } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 /**
- * DTO for match entity.
+ * DTO for match response.
  */
-export class MatchDto {
+export class MatchResponseDto {
+  /**
+   * Id of the match.
+   */
+  @ApiProperty({ description: 'Id of the match.' })
+  @IsNotEmpty()
+  @IsString()
+  id: string;
+
   /**
    * Name of the home team.
    */
