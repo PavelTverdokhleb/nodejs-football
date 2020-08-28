@@ -3,7 +3,7 @@
  */
 export const routes = {
   main: {
-    title: 'Main',
+    title: 'Seed',
     url: '',
   },
   matches: {
